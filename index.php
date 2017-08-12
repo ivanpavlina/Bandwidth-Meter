@@ -131,12 +131,11 @@ function setupChart(){
     });
 }
 
-function getBandwidthData(){
-    if (chartDownload == null || chartUpload == null) {
-        debugMessage("Chart undefined, skipping bandwidth check!");
-        return;
-    }
+function getBandwidth(val) {
+    return (val / 1000) / (interval/1000);
+}
 
+function getBandwidthData(){
     $.post('ajax.php', {
         cmd: 'get_bandwidth_data'
     }, function (bandwidth_data, status) {
@@ -144,6 +143,11 @@ function getBandwidthData(){
             // Discard first result, prevents spikes at beginning
             if (firstRunComplete === false) {
                 firstRunComplete = true;
+                return;
+            }
+            // Don't run parse and update if charts are not initialized
+            if (chartDownload == null || chartUpload == null) {
+                debugMessage("Chart undefined, skipping bandwidth check!");
                 return;
             }
 
@@ -154,19 +158,22 @@ function getBandwidthData(){
 
                 if (data.hasOwnProperty(name)) {
                     if (data[name].hasOwnProperty('download')) {
-                        chartDownload.options.data[k].dataPoints.push({label: ctime, y: (data[name].download / (interval/1000))});
+                        chartDownload.options.data[k].dataPoints.push({label: ctime, y: getBandwidth(data[name].download)});
                     } else {
                         chartDownload.options.data[k].dataPoints.push({label: ctime, y: 0});
                     }
                     if (data[name].hasOwnProperty('upload')) {
-                        chartUpload.options.data[k].dataPoints.push({label: ctime, y: (data[name].upload / (interval/1000))});
+                        chartUpload.options.data[k].dataPoints.push({label: ctime, y: getBandwidth(data[name].upload)});
                     } else {
                         chartUpload.options.data[k].dataPoints.push({label: ctime, y: 0});
                     }
+
                 } else {
                     chartDownload.options.data[k].dataPoints.push({label: ctime, y: 0});
                     chartUpload.options.data[k].dataPoints.push({label: ctime, y: 0});
                 }
+
+                debugMessage(chartDownload.options.data[k].legendText + "[" + name + "] Download: " +  chartDownload.options.data[k].dataPoints[chartDownload.options.data[k].dataPoints.length -1].y + " Upload: " + chartUpload.options.data[k].dataPoints[chartUpload.options.data[k].dataPoints.length -1].y); 
             }
 
             chartDownload.render();

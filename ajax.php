@@ -16,17 +16,20 @@ if (isset($cmd)) {
         $result = array();
         foreach($arr as $dtmp){
             $tres = explode(' ', $dtmp);
+            $bandwidth = $tres[2];
             if (substr($tres[1], 0, 7) == '192.168') {
-                if (array_key_exists($tres[1], $result)) {
-                    $result[$tres[1]]['download'] += $tres[3];
-                }else {
-                    $result[$tres[1]] = array('download'=>$tres[3]);
+                $name = $tres[1];
+                if (array_key_exists($name, $result)) {
+                    $result[$name]['download'] += $bandwidth;
+                } else {
+                    $result[$name] = array('download'=>$bandwidth);
                 }
             } else if (substr($tres[0], 0, 7) == '192.168') {
-                if (array_key_exists($tres[0], $result)) {
-                    $result[$tres[0]]['upload'] += $tres[3];
+                $name = $tres[0];
+                if (array_key_exists($name, $result)) {
+                    $result[$name]['upload'] += $bandwidth;
                 } else {
-                    $result[$tres[0]] = array('download'=>$tres[3]);
+                    $result[$name] = array('upload'=>$bandwidth);
                 }
             }
         }
