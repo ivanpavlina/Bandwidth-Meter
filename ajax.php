@@ -1,4 +1,5 @@
 <?php
+error_reporting(E_ERROR | E_WARNING | E_PARSE);
 
 require('conf.php');
 require('routeros_api.class.php');
@@ -16,15 +17,17 @@ if (isset($cmd)) {
         foreach($arr as $dtmp){
             $tres = explode(' ', $dtmp);
             if (substr($tres[1], 0, 7) == '192.168') {
-                if (!array_key_exists($tres[1], $result)) {
-                    $result[$tres[1]] = array();
+                if (array_key_exists($tres[1], $result)) {
+                    $result[$tres[1]]['download'] += $tres[3];
+                }else {
+                    $result[$tres[1]] = array('download'=>$tres[3]);
                 }
-                $result[$tres[1]]['download'] = $tres[3];
             } else if (substr($tres[0], 0, 7) == '192.168') {
-                if (!array_key_exists($tres[0], $result)) {
-                    $result[$tres[0]] = array();
+                if (array_key_exists($tres[0], $result)) {
+                    $result[$tres[0]]['upload'] += $tres[3];
+                } else {
+                    $result[$tres[0]] = array('download'=>$tres[3]);
                 }
-                $result[$tres[0]]['upload'] = $tres[3];
             }
         }
         echo json_encode($result, JSON_NUMERIC_CHECK);

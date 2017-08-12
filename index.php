@@ -18,7 +18,8 @@
 var chartDownload;
 var chartUpload;
 var firstRunComplete = false;
-
+var interval = <?php echo INTERVAL;?>; 
+    
 function debugMessage(text) {
     if (<?php echo DEBUG;?> == 1) {
         console.log(text);
@@ -36,7 +37,7 @@ function getCurrentTime() {
 $(document).ready(function(){
     setupChart();
     getBandwidthData();
-    setInterval(getBandwidthData, <?php echo INTERVAL;?>);
+    setInterval(getBandwidthData, interval);
 });
 
 
@@ -48,8 +49,13 @@ function setupChart(){
             var hosts = JSON.parse(hosts_data);
 
             var datad = [];
+            var datau = [];
             for (var k in hosts) {
                 if (hosts.hasOwnProperty(k)) {
+                    // Exclude AP devices
+                    if (JSON.stringify(hosts[k]).indexOf(" AP") > -1){
+                        continue;
+                    }
                     debugMessage("Adding host: " + hosts[k]);
                     datad.push({name: k,
                                type: 'spline',
@@ -57,19 +63,13 @@ function setupChart(){
                                legendText: hosts[k][0],
                                dataPoints: []
                     });
-                }
-            }
-
-            var datau = [];
-            for (var k in hosts) {
-                if (hosts.hasOwnProperty(k)) {
-                    debugMessage("Adding host: " + hosts[k]);
                     datau.push({name: k,
                                type: 'spline',
                                showInLegend: true,
                                legendText: hosts[k][0],
                                dataPoints: []
                     });
+
                 }
             }
 
@@ -154,12 +154,12 @@ function getBandwidthData(){
 
                 if (data.hasOwnProperty(name)) {
                     if (data[name].hasOwnProperty('download')) {
-                        chartDownload.options.data[k].dataPoints.push({label: ctime, y: data[name].download});
+                        chartDownload.options.data[k].dataPoints.push({label: ctime, y: (data[name].download / (interval/1000))});
                     } else {
                         chartDownload.options.data[k].dataPoints.push({label: ctime, y: 0});
                     }
                     if (data[name].hasOwnProperty('upload')) {
-                        chartUpload.options.data[k].dataPoints.push({label: ctime, y: data[name].upload});
+                        chartUpload.options.data[k].dataPoints.push({label: ctime, y: (data[name].upload / (interval/1000))});
                     } else {
                         chartUpload.options.data[k].dataPoints.push({label: ctime, y: 0});
                     }
