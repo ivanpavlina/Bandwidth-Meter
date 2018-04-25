@@ -15,3 +15,6 @@ Mikrotik setup:
 Optional:
 * If you don't want local network traffic displayed on graphs:
   * ip accounting set account-local-traffic=no
+
+
+There is/will be a new version written in Python which works better that this app. Search my repo to find it.
