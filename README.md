@@ -17,4 +17,3 @@ Optional:
   * ip accounting set account-local-traffic=no
 
 
-There is/will be a new version written in Python which works better that this app. Search my repos to find it.
